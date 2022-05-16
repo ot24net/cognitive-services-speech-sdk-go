@@ -48,19 +48,7 @@ func newAudioConfigFromHandle(handle C.SPXHANDLE) (*AudioConfig, error) {
 	config := new(AudioConfig)
 	config.handle = handle
 	config.properties = common.NewPropertyCollectionFromHandle(handle2uintptr(propBagHandle))
-	
-	// processing
-	var processing C.SPXAUDIOPROCESSINGOPTIONSHANDLE
-	if ret := uintptr(C.audio_processing_options_create(&processing, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT)); ret != C.SPX_NOERROR {
-		println("audio_processing_options_create fail")
-		return config, common.NewCarbonError(ret)
-	}
-	if ret := uintptr(C.audio_config_set_audio_processing_options(config.handle, processing)); ret != C.SPX_NOERROR {
-		println("audio_config_set_audio_processing_options fail")
-		return config, common.NewCarbonError(ret)
-	}
-	config.processing = processing
-	
+	config.processing = C.SPXHANDLE_INVALID
 	return config, nil
 }
 
@@ -173,4 +161,15 @@ func (config AudioConfig) SetPropertyByString(name string, value string) error {
 // GetPropertyByString gets a property value by name.
 func (config AudioConfig) GetPropertyByString(name string) string {
 	return config.properties.GetPropertyByString(name, "")
+}
+
+// processing
+func (config AudioConfig) EnableProcessingDefault() error {
+	if ret := uintptr(C.audio_processing_options_create(&config.processing, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT)); ret != C.SPX_NOERROR {
+		return common.NewCarbonError(ret)
+	}
+	if ret := uintptr(C.audio_config_set_audio_processing_options(config.handle, config.processing)); ret != C.SPX_NOERROR {
+		return common.NewCarbonError(ret)
+	}
+	return nil	
 }
