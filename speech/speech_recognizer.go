@@ -14,6 +14,7 @@ import (
 // #include <stdlib.h>
 // #include <speechapi_c_recognizer.h>
 // #include <speechapi_c_factory.h>
+// #include <speechapi_c_grammar.h>
 //
 // /* Proxy functions forward declarations */
 // void cgo_recognizer_session_started(SPXRECOHANDLE handle, SPXEVENTHANDLE event, void* context);
