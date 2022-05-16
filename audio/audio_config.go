@@ -13,6 +13,7 @@ import (
 // #include <speechapi_c_common.h>
 // #include <speechapi_c_property_bag.h>
 // #include <speechapi_c_audio_config.h>
+// #include <speechapi_c_audio_processing_options.h>
 import "C"
 
 // AudioConfig represents specific audio configuration, such as microphone, file, or custom audio streams.
@@ -160,10 +161,10 @@ func (config AudioConfig) GetPropertyByString(name string) string {
 // processing
 func (config *AudioConfig) EnableProcessingDefault() error {
 	var haudioConfig = (C.SPXAUDIOCONFIGHANDLE)(unsafe.Pointer(config.handle))
-	if ret := audio_processing_options_create(&config.processing, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT); ret != C.SPX_NOERROR {
+	if ret := C.audio_processing_options_create(&config.processing, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT); ret != C.SPX_NOERROR {
 		return common.NewCarbonError(ret)
 	}
-	if ret := audio_config_set_audio_processing_options(haudioConfig, config.processing); ret != C.SPX_NOERROR {
+	if ret := C.audio_config_set_audio_processing_options(haudioConfig, config.processing); ret != C.SPX_NOERROR {
 		return common.NewCarbonError(ret)
 	}
 	return nil	
