@@ -161,10 +161,10 @@ func (config AudioConfig) GetPropertyByString(name string) string {
 // processing
 func (config *AudioConfig) EnableProcessingDefault() error {
 	var haudioConfig = (C.SPXAUDIOCONFIGHANDLE)(unsafe.Pointer(config.handle))
-	if ret := C.audio_processing_options_create(&config.processing, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT); ret != C.SPX_NOERROR {
+	if ret := uintptr(C.audio_processing_options_create(&config.processing, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT)); ret != C.SPX_NOERROR {
 		return common.NewCarbonError(ret)
 	}
-	if ret := C.audio_config_set_audio_processing_options(haudioConfig, config.processing); ret != C.SPX_NOERROR {
+	if ret := uintptr(C.audio_config_set_audio_processing_options(haudioConfig, config.processing)); ret != C.SPX_NOERROR {
 		return common.NewCarbonError(ret)
 	}
 	return nil	
