@@ -19,6 +19,7 @@ import "C"
 type AudioConfig struct {
 	handle     C.SPXHANDLE
 	properties *common.PropertyCollection
+	processing C.SPXAUDIOPROCESSINGOPTIONSHANDLE
 }
 
 // GetHandle gets the handle to the resource (for internal use)
@@ -30,6 +31,7 @@ func (config AudioConfig) GetHandle() common.SPXHandle {
 func (config AudioConfig) Close() {
 	config.properties.Close()
 	C.audio_config_release(config.handle)
+	C.audio_processing_options_release(config.processing)
 }
 
 func newAudioConfigFromHandle(handle C.SPXHANDLE) (*AudioConfig, error) {
@@ -153,4 +155,16 @@ func (config AudioConfig) SetPropertyByString(name string, value string) error {
 // GetPropertyByString gets a property value by name.
 func (config AudioConfig) GetPropertyByString(name string) string {
 	return config.properties.GetPropertyByString(name, "")
+}
+
+// processing
+func (config *AudioConfig) EnableProcessingDefault() error {
+	var haudioConfig = (C.SPXAUDIOCONFIGHANDLE)(unsafe.Pointer(config.handle))
+	if ret := audio_processing_options_create(&config.processing, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT); ret != C.SPX_NOERROR {
+		return common.NewCarbonError(ret)
+	}
+	if ret := audio_config_set_audio_processing_options(haudioConfig, config.processing); ret != C.SPX_NOERROR {
+		return common.NewCarbonError(ret)
+	}
+	return nil	
 }
