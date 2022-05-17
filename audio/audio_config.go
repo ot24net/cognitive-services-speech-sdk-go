@@ -167,8 +167,8 @@ func (config AudioConfig) GetPropertyByString(name string) string {
 // processing
 func (config *AudioConfig) EnableProcessing() error {
 	// SPXAPI audio_processing_options_create(SPXAUDIOPROCESSINGOPTIONSHANDLE* hoptions, int audioProcessingFlags)
-	var hoptions SPXAUDIOPROCESSINGOPTIONSHANDLE = C.SPXHANDLE_INVALID;	
-	ret := uintprt(C.audio_processing_options_create(&hoptions, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT))	
+	var hoptions C.SPXAUDIOPROCESSINGOPTIONSHANDLE = C.SPXHANDLE_INVALID;	
+	ret := uintptr(C.audio_processing_options_create(&hoptions, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT))	
 	if ret != C.SPX_NOERROR {
 		fmt.Println("audio_processing_options_create fail")
 		return common.NewCarbonError(ret)
