@@ -5,6 +5,7 @@ package audio
 
 import (
 	"unsafe"
+	"fmt"
 
 	"github.com/Microsoft/cognitive-services-speech-sdk-go/common"
 )
@@ -164,12 +165,23 @@ func (config AudioConfig) GetPropertyByString(name string) string {
 }
 
 // processing
-func (config AudioConfig) EnableProcessingDefault() error {
-	if ret := uintptr(C.audio_processing_options_create(&config.processing, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT)); ret != C.SPX_NOERROR {
+func (config *AudioConfig) EnableProcessing() error {
+	// SPXAPI audio_processing_options_create(SPXAUDIOPROCESSINGOPTIONSHANDLE* hoptions, int audioProcessingFlags)
+	var hoptions SPXAUDIOPROCESSINGOPTIONSHANDLE = C.SPXHANDLE_INVALID;	
+	ret := uintprt(C.audio_processing_options_create(&hoptions, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT))	
+	if ret != C.SPX_NOERROR {
+		fmt.Println("audio_processing_options_create fail")
 		return common.NewCarbonError(ret)
 	}
-	if ret := uintptr(C.audio_config_set_audio_processing_options(config.handle, config.processing)); ret != C.SPX_NOERROR {
+	
+	// SPXAPI audio_config_set_audio_processing_options(SPXAUDIOCONFIGHANDLE haudioConfig, SPXAUDIOPROCESSINGOPTIONSHANDLE haudioProcessingOptions);
+	ret = uintptr(C.audio_config_set_audio_processing_options(config.handle, hoptions))
+	if ret != C.SPX_NOERROR {
+		fmt.Println("audio_config_set_audio_processing_options fail")
+		C.audio_processing_options_release(hoptions)
 		return common.NewCarbonError(ret)
 	}
+	
+	config.processing = hoptions
 	return nil	
 }
