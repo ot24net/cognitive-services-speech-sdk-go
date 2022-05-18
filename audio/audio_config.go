@@ -19,6 +19,7 @@ import "C"
 type AudioConfig struct {
 	handle     C.SPXHANDLE
 	properties *common.PropertyCollection
+	processing C.SPXAUDIOPROCESSINGOPTIONSHANDLE
 }
 
 // GetHandle gets the handle to the resource (for internal use)
@@ -30,6 +31,11 @@ func (config AudioConfig) GetHandle() common.SPXHandle {
 func (config AudioConfig) Close() {
 	config.properties.Close()
 	C.audio_config_release(config.handle)
+	
+	if config.processing != C.SPXHANDLE_INVALID {
+		C.audio_processing_options_release(config.processing)
+		config.processing = C.SPXHANDLE_INVALID
+	}
 }
 
 func newAudioConfigFromHandle(handle C.SPXHANDLE) (*AudioConfig, error) {
@@ -153,4 +159,26 @@ func (config AudioConfig) SetPropertyByString(name string, value string) error {
 // GetPropertyByString gets a property value by name.
 func (config AudioConfig) GetPropertyByString(name string) string {
 	return config.properties.GetPropertyByString(name, "")
+}
+
+// processing
+func (config *AudioConfig) EnableProcessing() error {
+	// SPXAPI audio_processing_options_create(SPXAUDIOPROCESSINGOPTIONSHANDLE* hoptions, int audioProcessingFlags)
+	var hoptions C.SPXAUDIOPROCESSINGOPTIONSHANDLE = C.SPXHANDLE_INVALID;	
+	ret := uintptr(C.audio_processing_options_create(&hoptions, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT))	
+	if ret != C.SPX_NOERROR {
+		fmt.Println("audio_processing_options_create fail")
+		return common.NewCarbonError(ret)
+	}
+	
+	// SPXAPI audio_config_set_audio_processing_options(SPXAUDIOCONFIGHANDLE haudioConfig, SPXAUDIOPROCESSINGOPTIONSHANDLE haudioProcessingOptions);
+	ret = uintptr(C.audio_config_set_audio_processing_options(config.handle, hoptions))
+	if ret != C.SPX_NOERROR {
+		fmt.Println("audio_config_set_audio_processing_options fail")
+		C.audio_processing_options_release(hoptions)
+		return common.NewCarbonError(ret)
+	}
+	
+	config.processing = hoptions
+	return nil	
 }
