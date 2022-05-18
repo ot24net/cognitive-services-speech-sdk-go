@@ -13,6 +13,7 @@ import (
 // #include <speechapi_c_common.h>
 // #include <speechapi_c_property_bag.h>
 // #include <speechapi_c_audio_config.h>
+// #include <speechapi_c_audio_processing_options.h>
 import "C"
 
 // AudioConfig represents specific audio configuration, such as microphone, file, or custom audio streams.
