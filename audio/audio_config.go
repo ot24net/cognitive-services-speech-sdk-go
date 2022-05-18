@@ -168,14 +168,12 @@ func (config *AudioConfig) EnableProcessing() error {
 	var hoptions C.SPXAUDIOPROCESSINGOPTIONSHANDLE = C.SPXHANDLE_INVALID;	
 	ret := uintptr(C.audio_processing_options_create(&hoptions, C.AUDIO_INPUT_PROCESSING_ENABLE_DEFAULT))	
 	if ret != C.SPX_NOERROR {
-		fmt.Println("audio_processing_options_create fail")
 		return common.NewCarbonError(ret)
 	}
 	
 	// SPXAPI audio_config_set_audio_processing_options(SPXAUDIOCONFIGHANDLE haudioConfig, SPXAUDIOPROCESSINGOPTIONSHANDLE haudioProcessingOptions);
 	ret = uintptr(C.audio_config_set_audio_processing_options(config.handle, hoptions))
 	if ret != C.SPX_NOERROR {
-		fmt.Println("audio_config_set_audio_processing_options fail")
 		C.audio_processing_options_release(hoptions)
 		return common.NewCarbonError(ret)
 	}
